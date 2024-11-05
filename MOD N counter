@@ -2,84 +2,91 @@ library IEEE;
 use IEEE.STD_LOGIC_1164.ALL; 
 use IEEE.STD_LOGIC_ARITH.ALL; 
 use IEEE.STD_LOGIC_UNSIGNED.ALL; 
+
 entity mod_n_counter is 
-generic ( 
-N : integer := 10 -- Mod-N value 
-); 
-port ( 
-clk  : in std_logic; 
-rst : in std_logic; 
-count : out std_logic_vector(3 downto 0) 
-); 
+    generic ( 
+        N : integer := 10 
+    ); 
+    port ( 
+        clk  : in std_logic; 
+        rst  : in std_logic; 
+        count : out std_logic_vector(3 downto 0) 
+    ); 
 end mod_n_counter; 
+
 architecture Behavioral of mod_n_counter is 
-signal counter_reg : std_logic_vector(3 downto 0) := (others => '0'); 
+    signal counter_reg : std_logic_vector(3 downto 0) := (others => '0'); 
 begin 
-process(clk, rst) 
-begin 
-if rst = '1' then 
-counter_reg <= (others => '0'); -- Reset counter to 0 
-elsif rising_edge(clk) then 
-if counter_reg = N - 1 then 
-counter_reg <= (others => '0'); -- Reset when reaching N 
-else 
-counter_reg <= counter_reg + 1; -- Increment counter 
-end if; 
-end if; 
-end process; 
-count <= counter_reg; -- Output the current count 
+    process(clk, rst) 
+    begin 
+        if rst = '1' then 
+            counter_reg <= (others => '0'); 
+        elsif rising_edge(clk) then 
+            if counter_reg = N - 1 then 
+                counter_reg <= (others => '0'); 
+            else 
+                counter_reg <= counter_reg + 1; 
+            end if; 
+        end if; 
+    end process; 
+    count <= counter_reg; 
 end Behavioral;
 *********************************************
 library IEEE; 
 use IEEE.STD_LOGIC_1164.ALL; 
 use IEEE.STD_LOGIC_ARITH.ALL; 
 use IEEE.STD_LOGIC_UNSIGNED.ALL; 
+
 entity tb_mod_n_counter is 
 end tb_mod_n_counter; 
-architecture Behavioral of tb_mod_n_counter is -- Component declaration of the unit under test (UUT) 
-component mod_n_counter 
-generic ( 
-N : integer := 10 
-); 
-port ( 
-clk  : in std_logic; 
-rst : in std_logic; 
-count : out std_logic_vector(3 downto 0) 
-); 
-end component; 
-signal clk_tb  : std_logic := '0'; 
-signal rst_tb : std_logic := '0'; 
-signal count_tb : std_logic_vector(3 downto 0); 
-constant clk_period : time := 10 ns; 
+
+architecture Behavioral of tb_mod_n_counter is 
+    component mod_n_counter 
+        generic ( 
+            N : integer := 10 
+        ); 
+        port ( 
+            clk  : in std_logic; 
+            rst : in std_logic; 
+            count : out std_logic_vector(3 downto 0) 
+        ); 
+    end component; 
+    
+    signal clk_tb  : std_logic := '0'; 
+    signal rst_tb : std_logic := '0'; 
+    signal count_tb : std_logic_vector(3 downto 0); 
+    constant clk_period : time := 10 ns; 
 begin 
-uut: mod_n_counter 
-generic map ( 
-N => 10 
-) 
-port map ( 
-clk  => clk_tb, 
-rst => rst_tb, 
-count => count_tb 
-); 
-clk_process : process 
-begin 
-clk_tb <= '0'; 
-wait for clk_period / 2; 
-clk_tb <= '1'; 
-wait for clk_period / 2; 
-end process; 
-stimulus: process 
-begin -- Initial reset 
-rst_tb <= '1'; -- Assert reset 
-wait for 20 ns; 
-rst_tb <= '0'; -- Deassert reset 
-wait for 150 ns; 
-rst_tb <= '1'; 
-wait for 20 ns; 
-rst_tb <= '0'; 
-wait for 100 ns; -- End of simulation 
-wait; 
-end process; 
+    uut: mod_n_counter 
+        generic map ( 
+            N => 10 
+        ) 
+        port map ( 
+            clk  => clk_tb, 
+            rst => rst_tb, 
+            count => count_tb 
+        ); 
+
+    clk_process : process 
+    begin 
+        clk_tb <= '0'; 
+        wait for clk_period / 2; 
+        clk_tb <= '1'; 
+        wait for clk_period / 2; 
+    end process; 
+
+    stimulus: process 
+    begin 
+        rst_tb <= '1'; 
+        wait for 20 ns; 
+        rst_tb <= '0'; 
+        wait for 150 ns; 
+        rst_tb <= '1'; 
+        wait for 20 ns; 
+        rst_tb <= '0'; 
+        wait for 100 ns; 
+        wait; 
+    end process; 
 end Behavioral;
 ********************************************************
 NET "clk" LOC = "P85"; 

@@ -1,0 +1,88 @@
+library IEEE; 
+use IEEE.STD_LOGIC_1164.ALL; 
+use IEEE.NUMERIC_STD.ALL; 
+entity alu_pro is 
+Port ( a, b : in STD_LOGIC_VECTOR (3 downto 0); -- 4-bit inputs 
+sel : in STD_LOGIC_VECTOR (2 downto 0); -- 3-bit selection input 
+op : out STD_LOGIC_VECTOR (3 downto 0)); -- 4-bit output 
+end alu_pro; 
+architecture Behavioral of alu_pro is 
+begin 
+process (a, b, sel) 
+begin 
+case sel is 
+when "000" => op <= a and b; 
+when "001" => op <= a or b; 
+when "010" => op <= a xor b; 
+when "011" => op <= not (a or b); 
+when "100" => op <= a xnor b; 
+when "101" => op <= a nand b; -- AND -- OR -- XOR -- NOR -- XNOR -- NAND 
+when "110" => op <= std_logic_vector(signed(a) + signed(b));-- Addition 
+when "111" => op <= std_logic_vector(signed(a) - signed(b));-- Subtraction 
+when others => op <= (others => '0'); -- Default case 
+end case; 
+end process; 
+end Behavioral;
+********************************************
+library IEEE; 
+use IEEE.STD_LOGIC_1164.ALL; 
+use IEEE.NUMERIC_STD.ALL; 
+entity tb_alu_pro is -- No port for testbench 
+end tb_alu_pro; 
+architecture Behavioral of tb_alu_pro is -- Signals to connect to the ALU entity 
+signal a, b : STD_LOGIC_VECTOR(3 downto 0); 
+signal sel : STD_LOGIC_VECTOR(2 downto 0); 
+signal op : STD_LOGIC_VECTOR(3 downto 0); -- Component declaration for the ALU under test 
+component alu_pro is 
+Port ( a, b : in STD_LOGIC_VECTOR (3 downto 0); 
+sel : in STD_LOGIC_VECTOR (2 downto 0); 
+op : out STD_LOGIC_VECTOR (3 downto 0)); 
+end component; 
+begin -- Instantiate the ALU 
+uut: alu_pro 
+port map ( 
+a => a, 
+b => b, 
+sel => sel, 
+op => op 
+); -- Stimulus process to apply test cases 
+stim_proc: process 
+begin -- Test 1: AND operation (sel = "000") 
+a <= "1010"; -- 10 in binary 
+b <= "1100"; -- 12 in binary 
+sel <= "000"; -- AND 
+wait for 10 ns; 
+-- Test 2: OR operation (sel = "001") 
+sel <= "001"; -- OR 
+wait for 10 ns; -- Test 3: XOR operation (sel = "010") 
+sel <= "010"; -- XOR 
+wait for 10 ns; -- Test 4: NOR operation (sel = "011") 
+sel <= "011"; -- NOR 
+wait for 10 ns; -- Test 5: XNOR operation (sel = "100") 
+sel <= "100"; -- XNOR 
+wait for 10 ns; -- Test 6: NAND operation (sel = "101") 
+sel <= "101"; -- NAND 
+wait for 10 ns; -- Test 7: Addition operation (sel = "110") 
+sel <= "110"; -- Addition 
+wait for 10 ns; -- Test 8: Subtraction operation (sel = "111") 
+sel <= "111"; -- Subtraction 
+wait for 10 ns; -- Finish simulation 
+wait; 
+end process; 
+end Behavioral;
+*****************************************************
+NET "a<0>" LOC = "P1"; 
+NET "a<1>" LOC = "P2"; 
+NET "a<2>" LOC = "P3"; 
+NET "a<3>" LOC = "P4"; 
+NET "b<0>" LOC = "P5"; 
+NET "b<1>" LOC = "P6"; 
+NET "b<2>" LOC = "P7"; 
+NET "b<3>" LOC = "P8"; 
+NET "sel<0>" LOC = "P9"; 
+NET "sel<1>" LOC = "P10"; 
+NET "sel<2>" LOC = "P11"; 
+NET "op<0>" LOC = "P12"; 
+NET "op<1>" LOC = "P13"; 
+NET "op<2>" LOC = "P14"; 
+NET "op<3>" LOC = "P15";

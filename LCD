@@ -2,182 +2,197 @@ library IEEE;
 use IEEE.STD_LOGIC_1164.ALL; 
 use IEEE.STD_LOGIC_ARITH.ALL; 
 use IEEE.STD_LOGIC_UNSIGNED.ALL; 
+
 entity LCD_Interface is 
-Port ( clk, reset : in std_logic; 
-RS, EN : out std_logic; 
-Roll No.:- 404C007 
-data : out std_logic_vector(7 downto 0)); 
+    Port ( 
+        clk, reset : in std_logic; 
+        RS, EN : out std_logic; 
+        Roll No.:- 404C007 
+        data : out std_logic_vector(7 downto 0)
+    ); 
 end LCD_Interface; 
-architecture Behavioral of LCD_Interface is -- State type declaration for state machine controlling LCD 
-type state_type is (s0,s1,s2,s3,s4,s5,s6,s7,s8,s9,s10,s11, 
-s12,s13,s14,s15,s16,s17,s18,s19,s20,s21,s22,s23); 
-signal state : state_type; 
-begin -- Process to implement the state machine for controlling the LCD 
-process(clk, reset, state) 
-begin -- Reset condition to initialize the state machine 
-if reset = '1' then 
-state <= s0; 
-elsif rising_edge(clk) then 
-if state = s0 then 
-state <= s1; 
-RS <= '0'; 
-EN <= '1'; 
-data <= "00110000"; 
-end if; -- State 1: Disable Enable signal to complete the command 
-if state = s1 then 
-state <= s2; 
-EN <= '0'; 
-end if; -- State 2: Display ON command (turn on display, cursor, and blinking) 
-if state = s2 then 
-state <= s3; 
-EN <= '1'; 
-data <= "00001111"; 
-end if; -- State 3: Disable Enable after display ON command 
-if state = s3 then 
-state <= s4; 
-EN <= '0'; -- Disable Enable 
-end if; -- State 4: Clear the display 
-if state = s4 then 
-state <= s5; 
-EN <= '1'; 
-data <= "00000001"; 
-end if; -- State 5: Disable Enable after clear display 
-if state = s5 then 
-state <= s6; 
-EN <= '0'; 
-end if; -- State 6: Set display address 
-if state = s6 then 
-state <= s7; 
-EN <= '1'; 
-data <= "10000100"; 
-end if; -- State 7: Disable Enable after setting display address 
-if state = s7 then 
-state <= s8; 
-EN <= '0'; 
-end if; -- State 8: Start writing data (RS = 1 for data mode) 
-if state = s8 then 
-RS <= '1'; 
-state <= s9; 
-EN <= '1'; 
-data <= "01010111"; 
-end if; -- State 9: Disable Enable after sending 'W' 
-if state = s9 then 
-state <= s10; 
-end if; 
-EN <= '0'; -- State 10: Send 'E' 
-if state = s10 then 
-state <= s11; 
-EN <= '1'; 
-data <= "01000101"; -- Display 'E' 
-end if; -- State 11: Disable Enable after sending 'E' 
-if state = s11 then 
-state <= s12; 
-EN <= '0'; 
-end if; -- State 12: Send 'L' 
-if state = s12 then 
-state <= s13; 
-EN <= '1'; 
-data <= "01001100"; -- Display 'L' 
-end if; -- State 13: Disable Enable after sending 'L' 
-if state = s13 then 
-state <= s14; 
-EN <= '0'; 
-end if; -- State 14: Send '-' 
-if state = s14 then 
-state <= s15; 
-end if; 
-EN <= '1'; 
-data <= "10110000"; -- Display '-' -- State 15: Disable Enable after sending '-' 
-if state = s15 then 
-state <= s16; 
-EN <= '0'; 
-end if; -- State 16: Send 'C' 
-if state = s16 then 
-state <= s17; 
-EN <= '1'; 
-data <= "01000011"; -- Display 'C' 
-end if; -- State 17: Disable Enable after sending 'C' 
-if state = s17 then 
-state <= s18; 
-EN <= '0'; 
-end if; -- State 18: Send 'O' 
-if state = s18 then 
-state <= s19; 
-EN <= '1'; 
-data <= "01001111"; -- Display 'O' 
-end if; -- State 19: Disable Enable after sending 'O' 
-if state = s19 then 
-end if; 
-state <= s20; 
-EN <= '0'; -- State 20: Send 'M' 
-if state = s20 then 
-state <= s21; 
-EN <= '1'; 
-data <= "01001101"; -- Display 'M' 
-end if; -- State 21: Disable Enable after sending 'M' 
-if state = s21 then 
-state <= s22; 
-EN <= '0'; 
-end if; -- State 22: Send 'E' 
-if state = s22 then 
-state <= s23; 
-EN <= '1'; 
-data <= "01000101"; -- Display 'E' 
-end if; -- State 23: Disable Enable after sending 'E' and complete 
-if state = s23 then 
-EN <= '0'; 
-end if; 
-end if; 
-end process; 
+
+architecture Behavioral of LCD_Interface is 
+    type state_type is (s0, s1, s2, s3, s4, s5, s6, s7, s8, s9, s10, s11, 
+                        s12, s13, s14, s15, s16, s17, s18, s19, s20, s21, s22, s23); 
+    signal state : state_type; 
+begin 
+    process(clk, reset, state) 
+    begin 
+        if reset = '1' then 
+            state <= s0; 
+        elsif rising_edge(clk) then 
+            if state = s0 then 
+                state <= s1; 
+                RS <= '0'; 
+                EN <= '1'; 
+                data <= "00110000"; 
+            end if; 
+            if state = s1 then 
+                state <= s2; 
+                EN <= '0'; 
+            end if; 
+            if state = s2 then 
+                state <= s3; 
+                EN <= '1'; 
+                data <= "00001111"; 
+            end if; 
+            if state = s3 then 
+                state <= s4; 
+                EN <= '0'; 
+            end if; 
+            if state = s4 then 
+                state <= s5; 
+                EN <= '1'; 
+                data <= "00000001"; 
+            end if; 
+            if state = s5 then 
+                state <= s6; 
+                EN <= '0'; 
+            end if; 
+            if state = s6 then 
+                state <= s7; 
+                EN <= '1'; 
+                data <= "10000100"; 
+            end if; 
+            if state = s7 then 
+                state <= s8; 
+                EN <= '0'; 
+            end if; 
+            if state = s8 then 
+                RS <= '1'; 
+                state <= s9; 
+                EN <= '1'; 
+                data <= "01010111"; 
+            end if; 
+            if state = s9 then 
+                state <= s10; 
+            end if; 
+            EN <= '0'; 
+            if state = s10 then 
+                state <= s11; 
+                EN <= '1'; 
+                data <= "01000101"; 
+            end if; 
+            if state = s11 then 
+                state <= s12; 
+                EN <= '0'; 
+            end if; 
+            if state = s12 then 
+                state <= s13; 
+                EN <= '1'; 
+                data <= "01001100"; 
+            end if; 
+            if state = s13 then 
+                state <= s14; 
+                EN <= '0'; 
+            end if; 
+            if state = s14 then 
+                state <= s15; 
+            end if; 
+            EN <= '1'; 
+            data <= "10110000"; 
+            if state = s15 then 
+                state <= s16; 
+                EN <= '0'; 
+            end if; 
+            if state = s16 then 
+                state <= s17; 
+                EN <= '1'; 
+                data <= "01000011"; 
+            end if; 
+            if state = s17 then 
+                state <= s18; 
+                EN <= '0'; 
+            end if; 
+            if state = s18 then 
+                state <= s19; 
+                EN <= '1'; 
+                data <= "01001111"; 
+            end if; 
+            if state = s19 then 
+                state <= s20; 
+                EN <= '0'; 
+            end if; 
+            if state = s20 then 
+                state <= s21; 
+                EN <= '1'; 
+                data <= "01001101"; 
+            end if; 
+            if state = s21 then 
+                state <= s22; 
+                EN <= '0'; 
+            end if; 
+            if state = s22 then 
+                state <= s23; 
+                EN <= '1'; 
+                data <= "01000101"; 
+            end if; 
+            if state = s23 then 
+                EN <= '0'; 
+            end if; 
+        end if; 
+    end process; 
 end Behavioral;
+
 *************************************************
+
 library IEEE; 
 use IEEE.STD_LOGIC_1164.ALL; 
 use IEEE.STD_LOGIC_ARITH.ALL; 
 use IEEE.STD_LOGIC_UNSIGNED.ALL; 
+
 entity LCD_Interface_tb is 
 end LCD_Interface_tb; 
+
 architecture Behavioral of LCD_Interface_tb is 
-Roll No.:- 404C007 -- Component declaration for the Unit Under Test (UUT) 
-component LCD_Interface 
-Port ( clk, reset : in std_logic; 
-RS, EN : out std_logic; 
-data : out std_logic_vector(7 downto 0)); -- 8-bit data bus for LCD 
-end component; 
-signal clk : std_logic := '0'; 
-signal reset : std_logic := '0'; 
-signal RS : std_logic; 
-signal EN : std_logic; 
-signal data : std_logic_vector(7 downto 0); -- Clock period constant 
-constant clk_period : time := 10 ns; 
-begin -- Instantiate the Unit Under Test (UUT) 
-uut: LCD_Interface 
-Port map ( 
-clk => clk, 
-reset => reset, 
-RS => RS, 
-EN => EN, 
-data => data 
-); 
-clk_process : process 
+    Roll No.:- 404C007 
+    component LCD_Interface 
+        Port ( 
+            clk, reset : in std_logic; 
+            RS, EN : out std_logic; 
+            data : out std_logic_vector(7 downto 0)
+        ); 
+    end component; 
+
+    signal clk : std_logic := '0'; 
+    signal reset : std_logic := '0'; 
+    signal RS : std_logic; 
+    signal EN : std_logic; 
+    signal data : std_logic_vector(7 downto 0); 
+    constant clk_period : time := 10 ns; 
 begin 
-while true loop 
-clk <= '0'; 
-wait for clk_period / 2; 
-clk <= '1'; 
-wait for clk_period / 2; 
-end loop; 
-end process; 
-stimulus: process 
-begin -- Apply reset initially 
-reset <= '1'; -- Assert reset 
-wait for 20 ns; -- Wait for 20 ns 
-reset <= '0'; -- De-assert reset 
-wait for 500 ns; 
-wait; 
-end process; 
+    uut: LCD_Interface 
+        Port map ( 
+            clk => clk, 
+            reset => reset, 
+            RS => RS, 
+            EN => EN, 
+            data => data 
+        ); 
+
+    clk_process : process 
+    begin 
+        while true loop 
+            clk <= '0'; 
+            wait for clk_period / 2; 
+            clk <= '1'; 
+            wait for clk_period / 2; 
+        end loop; 
+    end process; 
+
+    stimulus: process 
+    begin 
+        reset <= '1'; 
+        wait for 20 ns; 
+        reset <= '0'; 
+        wait for 500 ns; 
+        wait; 
+    end process; 
 end Behavioral;
+
 ***********************************************
+
 NET "clk" LOC = "B8"; 
 NET "reset" LOC = "A7"; 
 NET "RS" LOC = "D3"; 
@@ -189,4 +204,4 @@ NET "data<4>" LOC = "D0";
 NET "data<3>" LOC = "D1"; 
 NET "data<2>" LOC = "D2"; 
 NET "data<1>" LOC = "D5"; 
-NET "data<0>" LOC = "D6";
+NET "data<0>" LOC = "D6"; 

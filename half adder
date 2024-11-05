@@ -1,0 +1,72 @@
+library IEEE; 
+use IEEE.STD_LOGIC_1164.ALL; 
+use IEEE.STD_LOGIC_ARITH.ALL; 
+use IEEE.STD_LOGIC_UNSIGNED.ALL; 
+entity fa is 
+Port ( a : in STD_LOGIC; 
+b : in STD_LOGIC; 
+Cin : in STD_LOGIC; 
+S : out STD_LOGIC; 
+Co : out STD_LOGIC); 
+end fa; 
+architecture Behavioral of fa is 
+begin 
+s <= a xor b xor Cin; 
+co <= (a and b) or (b and Cin) or (a and Cin); 
+end Behavioral;
+********************************************************
+LIBRARY ieee; 
+USE ieee.std_logic_1164.ALL; 
+USE ieee.std_logic_unsigned.all; 
+USE ieee.numeric_std.ALL; 
+ENTITY tb_fa_vhd IS 
+END tb_fa_vhd; 
+ARCHITECTURE behavior OF tb_fa_vhd IS -- Component Declaration for the Unit Under Test (UUT) 
+COMPONENT fa 
+PORT( 
+a : IN std_logic; 
+b : IN std_logic; 
+Cin : IN std_logic; 
+S : OUT std_logic; 
+Co : OUT std_logic 
+); 
+END COMPONENT; --Inputs 
+SIGNAL a : std_logic := '0'; 
+SIGNAL b : std_logic := '0'; 
+SIGNAL Cin : std_logic := '0'; --Outputs 
+SIGNAL S : std_logic; 
+SIGNAL Co : std_logic; 
+BEGIN -- Instantiate the Unit Under Test (UUT) 
+uut: fa PORT MAP( 
+a => a, 
+b => b, 
+Cin => Cin, 
+S => S, 
+Co => Co 
+); 
+tb : PROCESS 
+BEGIN 
+a <= '0'; 
+b<='0'; 
+Cin <= '0'; 
+wait for 20 ns; 
+a <= '0'; 
+b<='1'; 
+Cin <= '0'; 
+wait for 20 ns; 
+a <= '1'; 
+b<='0'; 
+Cin <= '1'; 
+wait for 20 ns; 
+a <= '1'; 
+b<='1'; 
+Cin <= '1'; 
+wait for 20 ns; 
+END PROCESS; 
+END; 
+*****************************
+NET "a"  LOC = "P1"; 
+NET "b" LOC = "P2"; 
+NET "Cin" LOC = "P3"; 
+NET "S" LOC = "P4"; 
+NET "Co" LOC = "P5";

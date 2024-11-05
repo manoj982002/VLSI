@@ -1,0 +1,154 @@
+library IEEE; 
+use IEEE.STD_LOGIC_1164.ALL; 
+use IEEE.NUMERIC_STD.ALL; 
+entity FIFO_Memory is 
+Port ( clk, rst : in STD_LOGIC; 
+enr, enw : in STD_LOGIC; 
+datain : in STD_LOGIC_VECTOR (3 downto 0); 
+dataout : out STD_LOGIC_VECTOR (3 downto 0); 
+full, empty : out STD_LOGIC); 
+end FIFO_Memory; 
+architecture Behavioral of FIFO_Memory is 
+type memory_type is array (0 to 7) of std_logic_vector(3 downto 0); 
+signal memory : memory_type; 
+signal readptr, writeptr : unsigned(2 downto 0) := (others => '0'); 
+signal counter : unsigned(2 downto 0) := (others => '0'); -- Internal signals for full and empty flags 
+signal fifo_full : std_logic := '0'; 
+signal fifo_empty : std_logic := '1'; 
+begin 
+FIFO_Process: process(clk, rst) 
+begin 
+if rst = '1' then 
+-- Reset all the pointers and outputs 
+readptr <= (others => '0'); 
+writeptr <= (others => '0'); 
+counter <= (others => '0'); 
+dataout <= (others => '0'); 
+fifo_full <= '0'; 
+fifo_empty <= '1'; 
+elsif rising_edge(clk) then -- Write operation 
+if enw = '1' and enr = '0' and fifo_full = '0' then 
+memory(to_integer(writeptr)) <= datain; 
+writeptr <= writeptr + 1; 
+if writeptr = 7 then 
+writeptr <= (others => '0'); 
+end if; 
+counter <= counter + 1; 
+end if; -- Read operation 
+if enr = '1' and enw = '0' and fifo_empty = '0' then 
+dataout <= memory(to_integer(readptr)); 
+readptr <= readptr + 1; 
+if readptr = 7 then 
+readptr <= (others => '0'); 
+end if; 
+counter <= counter - 1; 
+end if; 
+if counter = 7 then 
+fifo_full <= '1'; 
+else 
+fifo_full <= '0'; 
+end if; 
+if counter = 0 then 
+fifo_empty <= '1'; 
+else 
+fifo_empty <= '0'; 
+end if; 
+end if; 
+end process; 
+full <= fifo_full; 
+empty <= fifo_empty; 
+end Behavioral;
+********************************************
+LIBRARY ieee; 
+USE ieee.std_logic_1164.ALL; 
+USE ieee.numeric_std.ALL; 
+ENTITY test_FIFO_Memory IS 
+END test_FIFO_Memory; 
+ARCHITECTURE behavior OF test_FIFO_Memory IS 
+COMPONENT FIFO_Memory 
+PORT( 
+clk : IN std_logic; 
+rst : IN std_logic; 
+enr : IN std_logic; 
+enw  : IN std_logic; 
+datain : IN std_logic_vector(3 downto 0); 
+dataout : OUT std_logic_vector(3 downto 0); 
+full 
+: OUT std_logic; 
+empty  : OUT std_logic 
+); 
+END COMPONENT; 
+signal clk : std_logic := '0'; 
+signal rst : std_logic := '0'; 
+signal enr : std_logic := '0'; 
+signal enw  : std_logic := '0'; 
+signal datain : std_logic_vector(3 downto 0) := (others => '0'); 
+signal dataout : std_logic_vector(3 downto 0); 
+signal full  : std_logic; 
+signal empty : std_logic; 
+constant clk_period : time := 10 ns; 
+BEGIN 
+uut: FIFO_Memory 
+PORT MAP ( 
+clk 
+rst 
+=> clk, 
+=> rst, 
+enr => enr, 
+enw  => enw, 
+datain => datain, 
+dataout => dataout, 
+full 
+=> full, 
+empty  => empty 
+); -- Clock process definitions 
+clk_process : process 
+begin 
+clk <= '1'; 
+wait for clk_period / 2; 
+clk <= '0'; 
+wait for clk_period / 2; 
+end process; -- Stimulus process 
+stim_proc: process 
+begin 
+rst <= '1'; 
+enw <= '0'; 
+enr <= '0'; 
+wait for 20 ns; 
+rst <= '0'; -- Release reset 
+wait for 10 ns; -- Write data into FIFO 
+enw <= '1'; 
+datain <= "0001"; wait for 10 ns; 
+datain <= "0010"; wait for 10 ns; 
+datain <= "0011"; wait for 10 ns; 
+datain <= "0100"; wait for 10 ns; 
+datain <= "0101"; wait for 10 ns; 
+datain <= "0110"; wait for 10 ns; 
+datain <= "0111"; wait for 10 ns; 
+datain <= "1000"; wait for 10 ns; 
+assert (full = '1') report "Error: FIFO is not full after 8 writes!" severity failure; 
+enw <= '0'; 
+enr <= '1'; 
+wait for 10 ns; -- Read data from FIFO 
+for i in 0 to 7 loop 
+wait for 10 ns; 
+end loop; 
+assert (empty = '1') report "Error: FIFO is not empty after reading all the data!" severity failure; 
+wait; 
+end process; 
+END;
+*********************************************
+NET "mclk" LOC = "B8"; 
+NET "empty" LOC = "G1"; 
+NET "full" LOC = "P4"; 
+NET "dataout<3>" LOC = "G1"; 
+NET "dataout<2>" LOC = "P4"; 
+NET "dataout<1>" LOC = "N4"; 
+NET "dataout<0>" LOC = "N5"; 
+NET "enr" LOC = "N3"; 
+NET "enw" LOC = "E2"; 
+NET "datain<3>" LOC = "B4"; 
+NET "datain<2>" LOC = "K3"; 
+NET "datain<1>" LOC = "L3"; 
+NET "datain<0>" LOC = "P11"; 
+NET "rst" LOC = "A7";
